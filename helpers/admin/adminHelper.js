@@ -35,5 +35,31 @@ module.exports = {
       });
     }
   },
-
+  dealerDetails: (callback) => {
+    db.getConnection()
+      .collection(dealerDetailsCollection)
+      .find()
+      .toArray()
+      .then((result) => {
+        // console.log(result);
+        return callback(result);
+      });
+  },
+  dealerRemove: (id, callback) => {
+    console.log(id);
+    let query = { _id: ObjectId(id) };
+    db.getConnection()
+      .collection(dealerDetailsCollection)
+      .deleteOne(query)
+      .then((result) => {
+        // console.log(result.result);
+        if (result.result.ok) {
+          return callback({ status: 200, result: result });
+        } else {
+          return callback({ status: 409, result: result });
+        }
+      });
+  },
+  dealerEdit: () => {},
+  dealerAdd: () => {},
 };

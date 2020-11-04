@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const jwtPrivateKey = "e-libraryapplicationAdmin";
 
 const adminHelper = require("../../helpers/admin/adminHelper");
+const dealerHelper = require("../../helpers/dealer/dealerHelper");
 
 const adminValidation = (req, res, next) => {
   console.log("middleware");
@@ -22,7 +23,7 @@ const adminValidation = (req, res, next) => {
 };
 
 /**
- * ////////////////TODO:- Customer login form route/////////////
+ * ////////////////TODO:- admin login form route/////////////
  * */
 
 router.post("/login", (req, res) => {
@@ -36,10 +37,32 @@ router.post("/login", (req, res) => {
  * */
 
 router.get("/dashboard", adminValidation, (req, res) => {
-  // adminHelper.insertSignUpDetails(req.body, (result) => {
-  //   res.send(result);
-  // });
-  res.send({ status: 200, message: "success" });
+  adminHelper.dealerDetails((result) => {
+    console.log(result);
+    res.send({ status: 200, data: result });
+  });
+});
+
+/**
+ *  //////////TODO:- admin have a permission to delete dealer/////
+ * */
+
+router.delete("/dashboard", (req, res) => {
+  let id = req.query.id;
+  adminHelper.dealerRemove(id, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- admin have a permission to add dealer/////////////
+ * */
+
+router.post("/dashboard", (req, res) => {
+  dealerHelper.insertSignupDetails(req.body, (result) => {
+    console.log(result);
+    res.send(result);
+  });
 });
 
 module.exports = router;
