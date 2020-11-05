@@ -65,4 +65,15 @@ router.post("/dashboard", (req, res) => {
   });
 });
 
+/**
+ * ////////////////TODO:- admin have a permission to update dealer/////////////
+ * */
+
+router.put("/dashboard", (req, res) => {
+  adminHelper.dealerEdit(req.body, (result) => {
+    console.log(result);
+    res.send(result);
+  });
+});
+
 module.exports = router;

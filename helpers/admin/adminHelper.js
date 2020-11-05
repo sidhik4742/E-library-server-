@@ -60,6 +60,32 @@ module.exports = {
         }
       });
   },
-  dealerEdit: () => {},
-  dealerAdd: () => {},
+  dealerEdit: (data, callback) => {
+    console.log(data.userName);
+    let query = { userName: data.userName };
+
+    db.getConnection()
+      .collection(dealerDetailsCollection)
+      .findOneAndUpdate(query, {
+        $set: {
+          name: data.name,
+          userName: data.userName,
+          email: data.email,
+          password: data.password,
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        if (result.ok) {
+          db.getConnection()
+            .collection(dealerDetailsCollection)
+            .find()
+            .toArray()
+            .then((result) => {
+              // console.log(result);
+              return callback({ status: 200, data: result });
+            });
+        }
+      });
+  },
 };
