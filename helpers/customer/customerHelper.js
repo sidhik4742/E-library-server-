@@ -1,9 +1,11 @@
 const db = require("../../config/config");
 const bcrypt = require("bcrypt");
 const { ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
 
 const saltRounds = 10;
 const customerDetailsCollection = "customerPersonalDetails";
+const jwtPrivateKey = "e-libraryapplicationCustomer";
 
 module.exports = {
   insertSignUpDetails: (data, callback) => {
@@ -58,19 +60,23 @@ module.exports = {
     console.log(data);
     let { userName, password } = data;
     let query = { userName };
+    let jwtPublicKey = userName;
     try {
       db.getConnection()
         .collection(customerDetailsCollection)
         .find(query)
         .toArray()
         .then((collection) => {
-          //   console.log(collection);
+          console.log(collection);
           if (collection.length != 0) {
             if (bcrypt.compareSync(password, collection[0].password)) {
               //   console.log("password match");
+              let customerToken = jwt.sign(jwtPublicKey, jwtPrivateKey);
               return callback({
                 status: 200,
                 message: "Login successful",
+                customer: collection[0].userName,
+                customerToken: customerToken,
               });
             }
           } else {

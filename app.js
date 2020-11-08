@@ -10,6 +10,14 @@ let db = require("./config/config");
 
 let app = express();
 
+app.use(logger("dev"));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(cors());
+
+app.use(express.static("./public"));
+
 db.dbConnect((error) => {
   if (error) {
     console.log("db connection failed" + error);
@@ -27,12 +35,6 @@ let dealerRouter = require("./routes/dealer/dealer");
 let adminRouter = require("./routes/admin/admin");
 
 const { token } = require("morgan");
-
-app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(cors());
 
 // app.set("trust proxy", 1);
 // app.use(

@@ -52,7 +52,7 @@ module.exports = {
       .collection(dealerDetailsCollection)
       .deleteOne(query)
       .then((result) => {
-        // console.log(result.result);
+        console.log(result.result);
         if (result.result.ok) {
           return callback({ status: 200, result: result });
         } else {

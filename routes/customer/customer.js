@@ -10,6 +10,10 @@ const customerHelper = require("../../helpers/customer/customerHelper.js");
 
 router.post("/login", (req, res) => {
   customerHelper.loginCredentials(req.body, (result) => {
+    if(result.status === 200){
+      
+    }
+    
     res.send(result);
   });
 });
