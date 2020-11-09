@@ -109,6 +109,7 @@ module.exports = {
             db.getConnection()
               .collection(productDetailsCollection)
               .insertOne({
+                dealerName: bookInfo.dealerName,
                 bookName: bookInfo.bookName,
                 authorName: bookInfo.authorName,
                 publisher: bookInfo.publisher,
@@ -147,11 +148,12 @@ module.exports = {
       console.log(`Connection error ${error}`);
     }
   },
-  productDetails: (callback) => {
+  productDetails: (dealerName, callback) => {
     console.log("database connection");
+    let query = { dealerName: dealerName };
     db.getConnection()
       .collection(productDetailsCollection)
-      .find()
+      .find(query)
       .toArray()
       .then((result) => {
         console.log(result);
@@ -161,7 +163,7 @@ module.exports = {
         });
       });
   },
-  productEdit: (data, callback) => {
+  productEdit: (dealerName, data, callback) => {
     let query = { bookName: data.bookInfo.bookName };
     console.log(query);
     let imageUrl;
@@ -179,7 +181,7 @@ module.exports = {
         $set: {
           bookName: data.bookInfo.bookName,
           authorName: data.bookInfo.authorName,
-          publisher: bookInfo.publisher,
+          publisher: data.bookInfo.publisher,
           price: data.bookInfo.price,
           offer: data.bookInfo.offer,
           edition: data.bookInfo.editions,
@@ -192,9 +194,10 @@ module.exports = {
       .then((result) => {
         console.log(result);
         if (result.value) {
+          let query = { dealerName: dealerName };
           db.getConnection()
             .collection(productDetailsCollection)
-            .find()
+            .find(query)
             .toArray()
             .then((result) => {
               // console.log(result);

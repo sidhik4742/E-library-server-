@@ -63,7 +63,8 @@ router.post("/signup", (req, res) => {
  * */
 
 router.get("/dashboard/product-list", (req, res) => {
-  dealerHelper.productDetails((result) => {
+  let dealerName = req.headers.dealername;
+  dealerHelper.productDetails(dealerName, (result) => {
     res.send(result);
   });
 });
@@ -91,9 +92,9 @@ router.put("/dashboard/product-list", upload, (req, res) => {
     bookImage: req.files[0],
     bookInfo: JSON.parse(req.body.bookInfo),
   };
-
-  // console.log(data);
-  dealerHelper.productEdit(data, (result) => {
+  let dealerName = req.headers.dealername;
+  console.log(dealerName);
+  dealerHelper.productEdit(dealerName, data, (result) => {
     res.send(result);
   });
 });
