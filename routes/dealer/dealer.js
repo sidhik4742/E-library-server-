@@ -5,9 +5,9 @@ let multer = require("multer");
 let path = require("path");
 const jwt = require("jsonwebtoken");
 
-const storage = multer.diskStorage({
+const storage1 = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "./public/images/");
+    cb(null, "./public/images/product");
   },
   filename: function (req, file, callback) {
     callback(
@@ -17,7 +17,21 @@ const storage = multer.diskStorage({
   },
 });
 
-var upload = multer({ storage: storage }).any();
+var uploadProduct = multer({ storage: storage1 }).any();
+
+const storage2 = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./public/images/dealersDP");
+  },
+  filename: function (req, file, callback) {
+    callback(
+      null,
+      file.fieldname + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+
+var uploadDealerProfilPic = multer({ storage: storage2 }).any();
 
 const jwtPrivateKey = "e-libraryapplicationDealer";
 
@@ -52,8 +66,13 @@ router.post("/login", (req, res) => {
  * ////////////////TODO:- Dealer signup form route/////////////
  * */
 
-router.post("/signup", (req, res) => {
-  dealerHelper.insertSignupDetails(req.body, (result) => {
+router.post("/signup", uploadDealerProfilPic, (req, res) => {
+  let data = {
+    profilePic: req.files[0],
+    signupData: JSON.parse(req.body.dealerSignupData),
+  };
+  // console.log(data);
+  dealerHelper.insertSignupDetails(data, (result) => {
     res.send(result);
   });
 });
@@ -73,12 +92,13 @@ router.get("/dashboard/product-list", (req, res) => {
  * ////////////////TODO:- Dealer can add product-route/////////////
  * */
 
-router.post("/dashboard/product-list", upload, (req, res) => {
+router.post("/dashboard/product-list", uploadProduct, (req, res) => {
   let data = {
     bookImage: req.files[0],
     bookInfo: JSON.parse(req.body.bookInfo),
   };
-  dealerHelper.productAdd(data, (result) => {
+  let dealerName = req.headers.dealername;
+  dealerHelper.productAdd(dealerName, data, (result) => {
     res.send(result);
   });
 });
@@ -87,7 +107,7 @@ router.post("/dashboard/product-list", upload, (req, res) => {
  * ////////////////TODO:- Dealer can edit product-route/////////////
  * */
 
-router.put("/dashboard/product-list", upload, (req, res) => {
+router.put("/dashboard/product-list", uploadProduct, (req, res) => {
   let data = {
     bookImage: req.files[0],
     bookInfo: JSON.parse(req.body.bookInfo),

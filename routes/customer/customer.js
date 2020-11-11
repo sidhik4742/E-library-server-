@@ -1,3 +1,4 @@
+const { log } = require("debug");
 var express = require("express");
 const app = require("../../app");
 var router = express.Router();
@@ -10,10 +11,9 @@ const customerHelper = require("../../helpers/customer/customerHelper.js");
 
 router.post("/login", (req, res) => {
   customerHelper.loginCredentials(req.body, (result) => {
-    if(result.status === 200){
-      
+    if (result.status === 200) {
     }
-    
+
     res.send(result);
   });
 });
@@ -24,6 +24,38 @@ router.post("/login", (req, res) => {
 
 router.post("/signup", (req, res) => {
   customerHelper.insertSignUpDetails(req.body, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer view all product form route/////////////
+ * */
+
+router.get("/allProduct", (req, res) => {
+  customerHelper.productDetails((result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer add to cart product route/////////////
+ * */
+
+router.post("/addtocart", (req, res) => {
+  customerHelper.addToCart(req.body, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer view cart product route/////////////
+ * */
+
+router.get("/viewcart", (req, res) => {
+  let customerName = req.query.customerName;
+  // console.log(customerName);
+  customerHelper.viewCart(customerName, (result) => {
     res.send(result);
   });
 });

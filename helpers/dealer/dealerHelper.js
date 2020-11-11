@@ -10,8 +10,12 @@ const jwtPrivateKey = "e-libraryapplicationDealer";
 
 module.exports = {
   insertSignupDetails: (data, callback) => {
-    console.log(data);
-    let { name, userName, email, password } = data;
+    // console.log(data);
+    let { name, userName, email, password } = data.signupData;
+    let { profilePic } = data;
+    // console.log(profilePic);
+    let splitImageUrl = profilePic.path.split("/");
+    let imageUrl = `${splitImageUrl[1]}/${splitImageUrl[2]}/${splitImageUrl[3]}`;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
     let query = { userName: userName };
     try {
@@ -31,6 +35,7 @@ module.exports = {
                 userName: userName,
                 email: email,
                 password: hashedPassword,
+                profilePic: imageUrl,
               })
               .then((result) => {
                 if (!result.result.ok) {
@@ -66,7 +71,7 @@ module.exports = {
         .find(query)
         .toArray()
         .then((collection) => {
-          //   console.log(collection);
+          console.log(collection);
           if (collection.length != 0) {
             if (bcrypt.compareSync(password, collection[0].password)) {
               //   console.log("password match");
@@ -76,6 +81,7 @@ module.exports = {
                 message: "Login successful",
                 dealerToken: token,
                 userName: userName,
+                profilePic: collection[0].profilePic,
               });
             }
           } else {
@@ -89,11 +95,11 @@ module.exports = {
       console.log(`Connection error ${error}`);
     }
   },
-  productAdd: (data, callback) => {
+  productAdd: (dealerName, data, callback) => {
     let { bookImage, bookInfo } = data;
     console.log(bookImage, bookInfo);
     let splitImageUrl = bookImage.path.split("/");
-    let imageUrl = `${splitImageUrl[1]}/${splitImageUrl[2]}`;
+    let imageUrl = `${splitImageUrl[1]}/${splitImageUrl[2]}/${splitImageUrl[3]}`;
     // console.log(imageUrl);
     let query = { bookName: bookInfo.bookName };
     try {
@@ -126,7 +132,7 @@ module.exports = {
                 if (!result.result.ok) {
                   console.error("Book registration failed please try again");
                 } else {
-                  module.exports.productDetails((result) => {
+                  module.exports.productDetails(dealerName, (result) => {
                     console.log(result.ops);
                     return callback({
                       status: 200,
