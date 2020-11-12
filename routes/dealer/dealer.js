@@ -24,10 +24,7 @@ const storage2 = multer.diskStorage({
     cb(null, "./public/images/dealersDP");
   },
   filename: function (req, file, callback) {
-    callback(
-      null,
-      file.fieldname + Date.now() + path.extname(file.originalname)
-    );
+    callback(null, file.fieldname + Date.now() + ".jpg");
   },
 });
 
