@@ -186,4 +186,44 @@ module.exports = {
         });
       });
   },
+  removeCartItem: (name, id, callback) => {
+    let query = { customerName: name, _id: id };
+    db.getConnection()
+      .collection(addToCartCollection)
+      .deleteOne(query)
+      .then((result) => {
+        console.log(result.result);
+        if (result.result.n) {
+          return callback({ status: 200, result: result });
+        } else {
+          return callback({ status: 409, result: result });
+        }
+      });
+  },
+  chekout: (name, callback) => {
+    db.getConnection()
+      .collection(addToCartCollection)
+      .aggregate([
+        {
+          $lookup: {
+            from: "customerPersonalDetails",
+            localField: "customerName",
+            foreignField: "userName",
+            as: "customerPersonalDetails_Docs",
+          },
+        },
+      ])
+      .toArray()
+      .then((result) => {
+        console.log(result[0].customerPersonalDetails_Docs[0].shipAddress);
+        if (result.length != 0) {
+          callback({
+            status: 200,
+            result: result[0].customerPersonalDetails_Docs[0].shipAddress,
+          });
+        } else {
+          callback({ status: 200, result: "Empty Data" });
+        }
+      });
+  },
 };

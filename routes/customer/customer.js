@@ -25,7 +25,7 @@ router.post("/login", (req, res) => {
 router.post("/signup", (req, res) => {
   customerHelper.insertSignUpDetails(req.body, (result) => {
     res.send(result);
-  });
+  });responce
 });
 
 /**
@@ -56,6 +56,29 @@ router.get("/viewcart", (req, res) => {
   let customerName = req.query.customerName;
   // console.log(customerName);
   customerHelper.viewCart(customerName, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer remove cart product route/////////////
+ * */
+
+router.delete("/viewcart", (req, res) => {
+  let { customerName, id } = req.query;
+  console.log(customerName, id);
+  customerHelper.removeCartItem(customerName, id, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer checkout cart product route/////////////
+ * */
+
+router.get("/checkout", (req, res) => {
+  let { customerName } = req.query;
+  customerHelper.chekout(customerName, (result) => {
     res.send(result);
   });
 });
