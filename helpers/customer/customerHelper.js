@@ -226,4 +226,23 @@ module.exports = {
         }
       });
   },
+  editShipAddress: (name, data, callback) => {
+    let query = { userName: name };
+
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .findOneAndUpdate(query, {
+        $set: {
+          shipAddress: data,
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        if (result.result.ok) {
+          return callback({ status: 200, result: result });
+        } else {
+          return callback({ status: 409, result: result });
+        }
+      });
+  },
 };

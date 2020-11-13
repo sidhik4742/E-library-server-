@@ -25,7 +25,8 @@ router.post("/login", (req, res) => {
 router.post("/signup", (req, res) => {
   customerHelper.insertSignUpDetails(req.body, (result) => {
     res.send(result);
-  });responce
+  });
+  responce;
 });
 
 /**
@@ -79,6 +80,18 @@ router.delete("/viewcart", (req, res) => {
 router.get("/checkout", (req, res) => {
   let { customerName } = req.query;
   customerHelper.chekout(customerName, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can edit shipAddress route/////////////
+ * */
+
+router.post("/editShipAddress", (req, res) => {
+  let { customerName } = req.query;
+  let data = req.body;
+  customerHelper.editShipAddress(customerName, data, (result) => {
     res.send(result);
   });
 });
