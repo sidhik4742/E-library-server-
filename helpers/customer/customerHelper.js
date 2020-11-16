@@ -8,7 +8,9 @@ const { query } = require("express");
 const saltRounds = 10;
 const customerDetailsCollection = "customerPersonalDetails";
 const productDetailsCollection = "productDetails";
+const orderCollection = "order";
 const addToCartCollection = "cart";
+const orderHistoryCollection = "orderHistory";
 
 const jwtPrivateKey = "e-libraryapplicationCustomer";
 
@@ -243,6 +245,63 @@ module.exports = {
         } else {
           return callback({ status: 409, result: result });
         }
+      });
+  },
+  OrderHistory: (orderId, data, callback) => {
+    let { orderDetails, orderDateAndPaymentMethod } = data;
+    try {
+      // console.log("true");
+      db.getConnection()
+        .collection(orderHistoryCollection)
+        .insertOne({
+          orderId: orderId,
+          orderDetails: orderDetails,
+          paymentOption: orderDateAndPaymentMethod.paymentOption,
+          orderDate: orderDateAndPaymentMethod.orderDate,
+        })
+        .then((result) => {
+          if (!result.ops) {
+            console.error(
+              "Insert order list to database is failed, please try again"
+            );
+          } else {
+            console.log(result.ops);
+            return callback({
+              status: 200,
+              message: "Register successfully",
+            });
+          }
+        });
+    } catch (error) {
+      console.log(`Connection error ${error}`);
+    }
+  },
+  removeAllCartItem: (name, callback) => {
+    let query = { customerName: name };
+    db.getConnection()
+      .collection(addToCartCollection)
+      .remove(query)
+      .then((result) => {
+        console.log(result.result);
+        if (result.result.n) {
+          return callback({ status: 200, result: result });
+        } else {
+          return callback({ status: 409, result: result });
+        }
+      });
+  },
+  myOrderList: (name, callback) => {
+    let query = { customerName: name };
+    db.getConnection()
+      .collection(orderHistoryCollection)
+      .find(query)
+      .toArray()
+      .then((result) => {
+        console.log(result);
+        return callback({
+          status: 200,
+          data: result,
+        });
       });
   },
 };

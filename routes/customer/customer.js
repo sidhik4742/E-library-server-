@@ -2,6 +2,8 @@ const { log } = require("debug");
 var express = require("express");
 const app = require("../../app");
 var router = express.Router();
+const orderid = require("order-id")("eLibrary");
+const id = orderid.generate();
 
 const customerHelper = require("../../helpers/customer/customerHelper.js");
 
@@ -74,6 +76,18 @@ router.delete("/viewcart", (req, res) => {
 });
 
 /**
+ * ////////////////TODO:- Customer remove all cart product route/////////////
+ * */
+
+router.delete("/viewcartRemoveAll", (req, res) => {
+  let { customerName } = req.query;
+  console.log(customerName, id);
+  customerHelper.removeAllCartItem(customerName, (result) => {
+    res.send(result);
+  });
+});
+
+/**
  * ////////////////TODO:- Customer checkout cart product route/////////////
  * */
 
@@ -92,6 +106,28 @@ router.post("/editShipAddress", (req, res) => {
   let { customerName } = req.query;
   let data = req.body;
   customerHelper.editShipAddress(customerName, data, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can edit shipAddress route/////////////
+ * */
+
+router.post("/placeOrder", (req, res) => {
+  let orderId = orderid.getTime(id);
+  customerHelper.OrderHistory(orderId, req.body, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can view order route/////////////
+ * */
+
+router.get("/myOrder", (req, res) => {
+  let name = req.query.customerName;
+  customerHelper.myOrderList(name, (result) => {
     res.send(result);
   });
 });
