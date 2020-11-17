@@ -127,4 +127,15 @@ router.delete("/dashboard/product-list", (req, res) => {
   });
 });
 
+/**
+ * ////////////////TODO:- Dealer can access product-route/////////////
+ * */
+
+router.get("/dashboard/orderlist", (req, res) => {
+  let dealerName = req.query.dealerName;
+  dealerHelper.orderHistory(dealerName, (result) => {
+    res.send(result);
+  });
+});
+
 module.exports = router;

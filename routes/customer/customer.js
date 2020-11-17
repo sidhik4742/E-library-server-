@@ -64,6 +64,18 @@ router.get("/viewcart", (req, res) => {
 });
 
 /**
+ * ////////////////TODO:- Customer view cart product route/////////////
+ * */
+
+router.put("/viewcart", (req, res) => {
+  let { data, name } = req.body;
+  // console.log(data, name);
+  customerHelper.editViewCart(name, data, (result) => {
+    res.send(result);
+  });
+});
+
+/**
  * ////////////////TODO:- Customer remove cart product route/////////////
  * */
 
@@ -115,10 +127,32 @@ router.post("/editShipAddress", (req, res) => {
  * */
 
 router.post("/placeOrder", (req, res) => {
-  let orderId = orderid.getTime(id);
+  let orderId = Date.now();
   customerHelper.OrderHistory(orderId, req.body, (result) => {
     res.send(result);
   });
+});
+
+/**
+ * ////////////////TODO:- Customer can edit shipAddress route/////////////
+ * */
+
+router.get("/accountInfo", (req, res) => {
+  let { customerName } = req.query;
+  customerHelper.CustomerDetails(customerName, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- customer edit account details-route/////////////
+ * */
+
+router.put("/accountInfo", (req, res) => {
+  // let data = {
+  //   bookImage: req.files[0],
+  //   bookInfo: JSON.parse(req.body.bookInfo),
+  // };
 });
 
 /**

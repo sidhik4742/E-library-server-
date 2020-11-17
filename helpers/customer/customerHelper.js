@@ -4,6 +4,7 @@ const { ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const { log } = require("debug");
 const { query } = require("express");
+const { default: orderId } = require("order-id");
 
 const saltRounds = 10;
 const customerDetailsCollection = "customerPersonalDetails";
@@ -188,6 +189,25 @@ module.exports = {
         });
       });
   },
+  editViewCart: (name, data, callback) => {
+    let query = { customerName: name };
+    console.log(item);
+    db.getConnection()
+      .collection(addToCartCollection)
+      .deleteMany(query)
+      .then((result) => {
+        db.getConnection()
+          .collection(addToCartCollection)
+          .insertOne()
+          .then((result) => {
+            console.log(result);
+            return callback({
+              status: 200,
+              data: result,
+            });
+          });
+      });
+  },
   removeCartItem: (name, id, callback) => {
     let query = { customerName: name, _id: id };
     db.getConnection()
@@ -258,6 +278,7 @@ module.exports = {
           orderDetails: orderDetails,
           paymentOption: orderDateAndPaymentMethod.paymentOption,
           orderDate: orderDateAndPaymentMethod.orderDate,
+          status: "Pending",
         })
         .then((result) => {
           if (!result.ops) {
@@ -290,11 +311,60 @@ module.exports = {
         }
       });
   },
-  myOrderList: (name, callback) => {
+  editCustomerDetails: (name, callback) => {
     let query = { customerName: name };
     db.getConnection()
       .collection(orderHistoryCollection)
       .find(query)
+      .toArray()
+      .then((result) => {
+        console.log(result);
+        return callback({
+          status: 200,
+          data: result,
+        });
+      });
+  },
+
+  CustomerDetails: (name, callback) => {
+    let query = { userName: name };
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .find(query)
+      .toArray()
+      .then((result) => {
+        console.log(result);
+        return callback({
+          status: 200,
+          data: result,
+        });
+      });
+  },
+
+  myOrderList: (customerName, callback) => {
+    // let query = { customerName: name };
+    db.getConnection()
+      .collection(orderHistoryCollection)
+      .aggregate([
+        { $unwind: "$orderDetails" },
+        { $match: { "orderDetails.customerName": customerName } },
+        {
+          $group: {
+            _id: {
+              paymentOption: "$paymentOption",
+              orderId: "$orderId",
+              orderDate: "$orderDate",
+              customerName: "$orderDetails.customerName",
+              image: "$orderDetails.imageUrl",
+              bookName: "$orderDetails.bookName",
+              totalPrice: "$orderDetails.offerPrice",
+              price: "$orderDetails.price",
+              soldBy: "$orderDetails.dealerName",
+              status: "$orderDetails.status",
+            },
+          },
+        },
+      ])
       .toArray()
       .then((result) => {
         console.log(result);

@@ -6,6 +6,8 @@ const jwt = require("jsonwebtoken");
 const saltRounds = 10;
 const dealerDetailsCollection = "dealerPersonalDetails";
 const productDetailsCollection = "productDetails";
+const orderHistoryCollection = "orderHistory";
+
 const jwtPrivateKey = "e-libraryapplicationDealer";
 
 module.exports = {
@@ -225,6 +227,40 @@ module.exports = {
         } else {
           return callback({ status: 409, result: result });
         }
+      });
+  },
+  orderHistory: (dealerName, callback) => {
+    // let query = { dealerName: dealerName };
+    db.getConnection()
+      .collection(orderHistoryCollection)
+      .aggregate([
+        { $unwind: "$orderDetails" },
+        { $match: { "orderDetails.dealerName": dealerName } },
+        {
+          $group: {
+            _id: {
+              orderId: "$orderId",
+              bookName: "$orderDetails.bookName",
+              quantity: "$orderDetails.quantity",
+              price: "$orderDetails.price",
+              totalPrice: "$orderDetails.offerPrice",
+              orderDate: "$orderDate",
+              paymenttype: "$paymentOption",
+              customerName: "$orderDetails.customerName",
+              soldBy: "$orderDetails.dealerName",
+              status: "$orderDetails.status",
+              // image: "$orderDetails.imageUrl",
+            },
+          },
+        },
+      ])
+      .toArray()
+      .then((result) => {
+        console.log(result);
+        return callback({
+          status: 200,
+          data: result,
+        });
       });
   },
 };
