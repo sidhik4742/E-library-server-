@@ -267,18 +267,18 @@ module.exports = {
         }
       });
   },
-  OrderHistory: (orderId, data, callback) => {
-    let { orderDetails, orderDateAndPaymentMethod } = data;
+  OrderHistory: (data, callback) => {
+    let { orderDetails, orderDateAndPaymentMethod, transactionDetails } = data;
     try {
       // console.log("true");
       db.getConnection()
         .collection(orderHistoryCollection)
         .insertOne({
-          orderId: orderId,
+          orderId: transactionDetails.orderId,
           orderDetails: orderDetails,
           paymentOption: orderDateAndPaymentMethod.paymentOption,
           orderDate: orderDateAndPaymentMethod.orderDate,
-          status: "Pending",
+          status: transactionDetails.status,
         })
         .then((result) => {
           if (!result.ops) {

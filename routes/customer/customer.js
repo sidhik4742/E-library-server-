@@ -127,8 +127,7 @@ router.post("/editShipAddress", (req, res) => {
  * */
 
 router.post("/placeOrder", (req, res) => {
-  let orderId = Date.now();
-  customerHelper.OrderHistory(orderId, req.body, (result) => {
+  customerHelper.OrderHistory(req.body, (result) => {
     res.send(result);
   });
 });

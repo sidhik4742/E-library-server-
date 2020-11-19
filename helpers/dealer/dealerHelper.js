@@ -248,7 +248,7 @@ module.exports = {
               paymenttype: "$paymentOption",
               customerName: "$orderDetails.customerName",
               soldBy: "$orderDetails.dealerName",
-              status: "$orderDetails.status",
+              status: "$status",
               // image: "$orderDetails.imageUrl",
             },
           },
