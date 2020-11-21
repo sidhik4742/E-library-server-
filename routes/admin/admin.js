@@ -1,23 +1,23 @@
-var express = require("express");
-const app = require("../../app");
+var express = require('express');
+const app = require('../../app');
 var router = express.Router();
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
-const jwtPrivateKey = "e-libraryapplicationAdmin";
+const jwtPrivateKey = 'e-libraryapplicationAdmin';
 
-const adminHelper = require("../../helpers/admin/adminHelper");
-const dealerHelper = require("../../helpers/dealer/dealerHelper");
+const adminHelper = require('../../helpers/admin/adminHelper');
+const dealerHelper = require('../../helpers/dealer/dealerHelper');
 
 const adminValidation = (req, res, next) => {
-  console.log("middleware");
+  console.log('middleware');
   let token = req.headers.auth;
   console.log(token);
   jwt.verify(token, jwtPrivateKey, function (error, decoded) {
     console.log(decoded);
-    if (decoded === "admin") {
+    if (decoded === 'admin') {
       next();
     } else {
-      res.send({ status: 403, message: "authorization failed" });
+      res.send({status: 403, message: 'authorization failed'});
     }
   });
 };
@@ -26,7 +26,7 @@ const adminValidation = (req, res, next) => {
  * ////////////////TODO:- admin login form route/////////////
  * */
 
-router.post("/login", (req, res) => {
+router.post('/login', (req, res) => {
   adminHelper.loginCredentials(req.body, (result) => {
     res.send(result);
   });
@@ -36,10 +36,10 @@ router.post("/login", (req, res) => {
  * ////////////////TODO:- admin dashboard route/////////////
  * */
 
-router.get("/dashboard", adminValidation, (req, res) => {
+router.get('/dashboard', adminValidation, (req, res) => {
   adminHelper.dealerDetails((result) => {
     console.log(result);
-    res.send({ status: 200, data: result });
+    res.send({status: 200, data: result});
   });
 });
 
@@ -47,7 +47,7 @@ router.get("/dashboard", adminValidation, (req, res) => {
  *  //////////TODO:- admin have a permission to delete dealer/////
  * */
 
-router.delete("/dashboard", (req, res) => {
+router.delete('/dashboard', (req, res) => {
   let id = req.query.id;
   adminHelper.dealerRemove(id, (result) => {
     res.send(result);
@@ -58,7 +58,7 @@ router.delete("/dashboard", (req, res) => {
  * ////////////////TODO:- admin have a permission to add dealer/////////////
  * */
 
-router.post("/dashboard", (req, res) => {
+router.post('/dashboard', (req, res) => {
   dealerHelper.insertSignupDetails(req.body, (result) => {
     console.log(result);
     res.send(result);
@@ -69,8 +69,54 @@ router.post("/dashboard", (req, res) => {
  * ////////////////TODO:- admin have a permission to update dealer/////////////
  * */
 
-router.put("/dashboard", (req, res) => {
+router.put('/dashboard', (req, res) => {
   adminHelper.dealerEdit(req.body, (result) => {
+    console.log(result);
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Dealer can access usersList-route/////////////
+ * */
+
+router.get('/dashboard/users-list', (req, res) => {
+  // let dealerName = req.headers.dealername;
+  adminHelper.userDetails((result) => {
+    console.log(result);
+    res.send(result);
+  });
+});
+
+/**
+ *  //////////TODO:- admin have a permission to delete user/////
+ * */
+
+router.delete('/dashboard/users-list', (req, res) => {
+  let id = req.query.id;
+  adminHelper.userRemove(id, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- admin have a permission to update dealer/////////////
+ * */
+
+router.put('/dashboard/users-list', (req, res) => {
+  adminHelper.userEdit(req.body, (result) => {
+    console.log(result);
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Dealer can access usersList-route/////////////
+ * */
+
+router.get('/dashboard/getalldetailscount', (req, res) => {
+  console.log("admin root");
+  adminHelper.getAllDetailsCount((result) => {
     console.log(result);
     res.send(result);
   });

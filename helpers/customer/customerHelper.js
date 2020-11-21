@@ -1,26 +1,27 @@
-const db = require("../../config/config");
-const bcrypt = require("bcrypt");
-const { ObjectId } = require("mongodb");
-const jwt = require("jsonwebtoken");
-const { log } = require("debug");
-const { query } = require("express");
-const { default: orderId } = require("order-id");
+const db = require('../../config/config');
+const bcrypt = require('bcrypt');
+const {ObjectId} = require('mongodb');
+const jwt = require('jsonwebtoken');
+const {log} = require('debug');
+const {query} = require('express');
+const {default: orderId} = require('order-id');
 
 const saltRounds = 10;
-const customerDetailsCollection = "customerPersonalDetails";
-const productDetailsCollection = "productDetails";
-const orderCollection = "order";
-const addToCartCollection = "cart";
-const orderHistoryCollection = "orderHistory";
+const customerDetailsCollection = 'customerPersonalDetails';
+const productDetailsCollection = 'productDetails';
+const orderCollection = 'order';
+const addToCartCollection = 'cart';
+const orderHistoryCollection = 'orderHistory';
+const shipAddressCollection = 'shipAddress';
 
-const jwtPrivateKey = "e-libraryapplicationCustomer";
+const jwtPrivateKey = 'e-libraryapplicationCustomer';
 
 module.exports = {
   insertSignUpDetails: (data, callback) => {
-    let { firstName, lastName, userName, email, password, shipAddress } = data;
+    let {firstName, lastName, userName, email, password, shipAddress} = data;
     console.log(shipAddress);
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
-    let query = { userName: userName };
+    let query = {userName: userName};
     try {
       db.getConnection()
         .collection(customerDetailsCollection)
@@ -30,7 +31,7 @@ module.exports = {
           console.log(collection);
           console.log(collection.length);
           if (collection.length === 0) {
-            console.log("true");
+            console.log('true');
             db.getConnection()
               .collection(customerDetailsCollection)
               .insertOne({
@@ -43,20 +44,20 @@ module.exports = {
               })
               .then((result) => {
                 if (!result.result.ok) {
-                  console.error("registration failed please try again");
+                  console.error('registration failed please try again');
                 } else {
                   console.log(result.ops);
                   return callback({
                     status: 200,
-                    message: "Register successfully",
+                    message: 'Register successfully',
                   });
                 }
               });
           } else {
-            console.log("User already registered");
+            console.log('User already registered');
             return callback({
               status: 301,
-              message: "user already registered",
+              message: 'user already registered',
             });
           }
         });
@@ -66,8 +67,8 @@ module.exports = {
   },
   loginCredentials: (data, callback) => {
     console.log(data);
-    let { userName, password } = data;
-    let query = { userName };
+    let {userName, password} = data;
+    let query = {userName};
     let jwtPublicKey = userName;
     try {
       db.getConnection()
@@ -82,7 +83,7 @@ module.exports = {
               let customerToken = jwt.sign(jwtPublicKey, jwtPrivateKey);
               return callback({
                 status: 200,
-                message: "Login successful",
+                message: 'Login successful',
                 customer: collection[0].userName,
                 customerToken: customerToken,
               });
@@ -90,7 +91,7 @@ module.exports = {
           } else {
             return callback({
               status: 301,
-              message: "Login failed",
+              message: 'Login failed',
             });
           }
         });
@@ -99,7 +100,7 @@ module.exports = {
     }
   },
   productDetails: (callback) => {
-    console.log("database connection");
+    console.log('database connection');
     db.getConnection()
       .collection(productDetailsCollection)
       .find()
@@ -117,7 +118,7 @@ module.exports = {
     let cartData = data[0];
     let customer = data[1].customer;
     // console.log(cartData);
-    let query = { customerName: customer };
+    let query = {customerName: customer};
     cartData.customerName = customer;
     cartData.quantity = 1;
     db.getConnection()
@@ -131,18 +132,18 @@ module.exports = {
             .insertOne(cartData)
             .then((result) => {
               if (!result.result.ok) {
-                console.error("registration failed please try again");
+                console.error('registration failed please try again');
               } else {
                 console.log(result.ops);
                 return callback({
                   status: 200,
-                  message: "Register successfully",
+                  message: 'Register successfully',
                 });
               }
             });
         } else {
-          console.log("else condition");
-          let query = { bookName: cartData.bookName };
+          console.log('else condition');
+          let query = {bookName: cartData.bookName};
 
           db.getConnection()
             .collection(addToCartCollection)
@@ -156,19 +157,19 @@ module.exports = {
                   .insertOne(cartData)
                   .then((result) => {
                     if (!result.result.ok) {
-                      console.error("registration failed please try again");
+                      console.error('registration failed please try again');
                     } else {
                       console.log(result.ops);
                       return callback({
                         status: 200,
-                        message: "Register successfully",
+                        message: 'Register successfully',
                       });
                     }
                   });
               } else {
                 return callback({
                   status: 309,
-                  message: "Book already in the cart",
+                  message: 'Book already in the cart',
                 });
               }
             });
@@ -176,7 +177,7 @@ module.exports = {
       });
   },
   viewCart: (name, callback) => {
-    let query = { customerName: name };
+    let query = {customerName: name};
     db.getConnection()
       .collection(addToCartCollection)
       .find(query)
@@ -190,7 +191,7 @@ module.exports = {
       });
   },
   editViewCart: (name, data, callback) => {
-    let query = { customerName: name };
+    let query = {customerName: name};
     console.log(item);
     db.getConnection()
       .collection(addToCartCollection)
@@ -209,16 +210,16 @@ module.exports = {
       });
   },
   removeCartItem: (name, id, callback) => {
-    let query = { customerName: name, _id: id };
+    let query = {customerName: name, _id: id};
     db.getConnection()
       .collection(addToCartCollection)
       .deleteOne(query)
       .then((result) => {
         console.log(result.result);
         if (result.result.n) {
-          return callback({ status: 200, result: result });
+          return callback({status: 200, result: result});
         } else {
-          return callback({ status: 409, result: result });
+          return callback({status: 409, result: result});
         }
       });
   },
@@ -228,10 +229,10 @@ module.exports = {
       .aggregate([
         {
           $lookup: {
-            from: "customerPersonalDetails",
-            localField: "customerName",
-            foreignField: "userName",
-            as: "customerPersonalDetails_Docs",
+            from: 'customerPersonalDetails',
+            localField: 'customerName',
+            foreignField: 'userName',
+            as: 'customerPersonalDetails_Docs',
           },
         },
       ])
@@ -244,12 +245,12 @@ module.exports = {
             result: result[0].customerPersonalDetails_Docs[0].shipAddress,
           });
         } else {
-          callback({ status: 200, result: "Empty Data" });
+          callback({status: 200, result: 'Empty Data'});
         }
       });
   },
   editShipAddress: (name, data, callback) => {
-    let query = { userName: name };
+    let query = {userName: name};
 
     db.getConnection()
       .collection(customerDetailsCollection)
@@ -261,14 +262,14 @@ module.exports = {
       .then((result) => {
         console.log(result);
         if (result.result.ok) {
-          return callback({ status: 200, result: result });
+          return callback({status: 200, result: result});
         } else {
-          return callback({ status: 409, result: result });
+          return callback({status: 409, result: result});
         }
       });
   },
   OrderHistory: (data, callback) => {
-    let { orderDetails, orderDateAndPaymentMethod, transactionDetails } = data;
+    let {orderDetails, orderDateAndPaymentMethod, transactionDetails} = data;
     try {
       // console.log("true");
       db.getConnection()
@@ -283,13 +284,13 @@ module.exports = {
         .then((result) => {
           if (!result.ops) {
             console.error(
-              "Insert order list to database is failed, please try again"
+              'Insert order list to database is failed, please try again'
             );
           } else {
             console.log(result.ops);
             return callback({
               status: 200,
-              message: "Register successfully",
+              message: 'Register successfully',
             });
           }
         });
@@ -298,21 +299,21 @@ module.exports = {
     }
   },
   removeAllCartItem: (name, callback) => {
-    let query = { customerName: name };
+    let query = {customerName: name};
     db.getConnection()
       .collection(addToCartCollection)
       .remove(query)
       .then((result) => {
         console.log(result.result);
         if (result.result.n) {
-          return callback({ status: 200, result: result });
+          return callback({status: 200, result: result});
         } else {
-          return callback({ status: 409, result: result });
+          return callback({status: 409, result: result});
         }
       });
   },
   editCustomerDetails: (name, callback) => {
-    let query = { customerName: name };
+    let query = {customerName: name};
     db.getConnection()
       .collection(orderHistoryCollection)
       .find(query)
@@ -327,7 +328,7 @@ module.exports = {
   },
 
   CustomerDetails: (name, callback) => {
-    let query = { userName: name };
+    let query = {userName: name};
     db.getConnection()
       .collection(customerDetailsCollection)
       .find(query)
@@ -346,21 +347,21 @@ module.exports = {
     db.getConnection()
       .collection(orderHistoryCollection)
       .aggregate([
-        { $unwind: "$orderDetails" },
-        { $match: { "orderDetails.customerName": customerName } },
+        {$unwind: '$orderDetails'},
+        {$match: {'orderDetails.customerName': customerName}},
         {
           $group: {
             _id: {
-              paymentOption: "$paymentOption",
-              orderId: "$orderId",
-              orderDate: "$orderDate",
-              customerName: "$orderDetails.customerName",
-              image: "$orderDetails.imageUrl",
-              bookName: "$orderDetails.bookName",
-              totalPrice: "$orderDetails.offerPrice",
-              price: "$orderDetails.price",
-              soldBy: "$orderDetails.dealerName",
-              status: "$orderDetails.status",
+              paymentOption: '$paymentOption',
+              orderId: '$orderId',
+              orderDate: '$orderDate',
+              customerName: '$orderDetails.customerName',
+              image: '$orderDetails.imageUrl',
+              bookName: '$orderDetails.bookName',
+              totalPrice: '$orderDetails.offerPrice',
+              price: '$orderDetails.price',
+              soldBy: '$orderDetails.dealerName',
+              status: '$orderDetails.status',
             },
           },
         },
@@ -374,4 +375,30 @@ module.exports = {
         });
       });
   },
+  addMultipleShipAddress:(name,callback)=>{
+    let query = {userName: name};
+    try {
+      db.getConnection()
+        .collection(shipAddressCollection)
+        .find(query)
+        .toArray()
+        .then((collection) => {
+          console.log(collection);
+          console.log(collection.length);
+          if (collection.length === 0) {
+            console.log('true');
+            db.getConnection()
+              .collection(customerDetailsCollection)
+              .insertOne({
+                firstName: firstName,
+                lastName: lastName,
+                userName: userName,
+                email: email,
+                password: hashedPassword,
+                shipAddress: shipAddress,
+              })
+    } catch (error) {
+      
+    }
+  }
 };

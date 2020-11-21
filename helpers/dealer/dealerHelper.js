@@ -1,25 +1,26 @@
-const db = require("../../config/config");
-const bcrypt = require("bcrypt");
-const { ObjectId } = require("mongodb");
-const jwt = require("jsonwebtoken");
+const db = require('../../config/config');
+const bcrypt = require('bcrypt');
+const {ObjectId} = require('mongodb');
+const jwt = require('jsonwebtoken');
 
 const saltRounds = 10;
-const dealerDetailsCollection = "dealerPersonalDetails";
-const productDetailsCollection = "productDetails";
-const orderHistoryCollection = "orderHistory";
+const customerDetailsCollection = 'customerPersonalDetails';
+const dealerDetailsCollection = 'dealerPersonalDetails';
+const productDetailsCollection = 'productDetails';
+const orderHistoryCollection = 'orderHistory';
 
-const jwtPrivateKey = "e-libraryapplicationDealer";
+const jwtPrivateKey = 'e-libraryapplicationDealer';
 
 module.exports = {
   insertSignupDetails: (data, callback) => {
     // console.log(data);
-    let { name, userName, email, password } = data.signupData;
-    let { profilePic } = data;
+    let {name, userName, email, password} = data.signupData;
+    let {profilePic} = data;
     // console.log(profilePic);
-    let splitImageUrl = profilePic.path.split("/");
+    let splitImageUrl = profilePic.path.split('/');
     let imageUrl = `${splitImageUrl[1]}/${splitImageUrl[2]}/${splitImageUrl[3]}`;
     const hashedPassword = bcrypt.hashSync(password, saltRounds);
-    let query = { userName: userName };
+    let query = {userName: userName};
     try {
       db.getConnection()
         .collection(dealerDetailsCollection)
@@ -41,20 +42,20 @@ module.exports = {
               })
               .then((result) => {
                 if (!result.result.ok) {
-                  console.error("registration failed please try again");
+                  console.error('registration failed please try again');
                 } else {
                   console.log(result.ops);
                   return callback({
                     status: 200,
-                    message: "Register successfully",
+                    message: 'Register successfully',
                   });
                 }
               });
           } else {
-            console.log("User already registered");
+            console.log('User already registered');
             return callback({
               status: 301,
-              message: "user already registered",
+              message: 'user already registered',
             });
           }
         });
@@ -64,8 +65,8 @@ module.exports = {
   },
   loginCredentials: (data, callback) => {
     console.log(data);
-    let { userName, password } = data;
-    let query = { userName };
+    let {userName, password} = data;
+    let query = {userName};
     let jwtPublicKey = userName;
     try {
       db.getConnection()
@@ -80,7 +81,7 @@ module.exports = {
               let token = jwt.sign(jwtPublicKey, jwtPrivateKey);
               return callback({
                 status: 200,
-                message: "Login successful",
+                message: 'Login successful',
                 dealerToken: token,
                 userName: userName,
                 profilePic: collection[0].profilePic,
@@ -89,7 +90,7 @@ module.exports = {
           } else {
             return callback({
               status: 301,
-              message: "Login failed",
+              message: 'Login failed',
             });
           }
         });
@@ -98,12 +99,12 @@ module.exports = {
     }
   },
   productAdd: (dealerName, data, callback) => {
-    let { bookImage, bookInfo } = data;
+    let {bookImage, bookInfo} = data;
     console.log(bookImage, bookInfo);
-    let splitImageUrl = bookImage.path.split("/");
+    let splitImageUrl = bookImage.path.split('/');
     let imageUrl = `${splitImageUrl[1]}/${splitImageUrl[2]}/${splitImageUrl[3]}`;
     // console.log(imageUrl);
-    let query = { bookName: bookInfo.bookName };
+    let query = {bookName: bookInfo.bookName};
     try {
       db.getConnection()
         .collection(productDetailsCollection)
@@ -132,23 +133,23 @@ module.exports = {
               })
               .then((result) => {
                 if (!result.result.ok) {
-                  console.error("Book registration failed please try again");
+                  console.error('Book registration failed please try again');
                 } else {
                   module.exports.productDetails(dealerName, (result) => {
                     console.log(result.ops);
                     return callback({
                       status: 200,
-                      message: "Register successfully",
+                      message: 'Register successfully',
                       result: result,
                     });
                   });
                 }
               });
           } else {
-            console.log("Book already registered");
+            console.log('Book already registered');
             return callback({
               status: 301,
-              message: "Book already registered",
+              message: 'Book already registered',
             });
           }
         });
@@ -157,8 +158,8 @@ module.exports = {
     }
   },
   productDetails: (dealerName, callback) => {
-    console.log("database connection");
-    let query = { dealerName: dealerName };
+    console.log('database connection');
+    let query = {dealerName: dealerName};
     db.getConnection()
       .collection(productDetailsCollection)
       .find(query)
@@ -172,11 +173,11 @@ module.exports = {
       });
   },
   productEdit: (dealerName, data, callback) => {
-    let query = { bookName: data.bookInfo.bookName };
+    let query = {bookName: data.bookInfo.bookName};
     console.log(query);
     let imageUrl;
     try {
-      splitImageUrl = bookImage.path.split("/");
+      splitImageUrl = bookImage.path.split('/');
       imageUrl = `${splitImageUrl[1]}/${splitImageUrl[2]}`;
     } catch (error) {
       imageUrl = data.bookInfo.imageUrl;
@@ -202,53 +203,54 @@ module.exports = {
       .then((result) => {
         console.log(result);
         if (result.value) {
-          let query = { dealerName: dealerName };
+          let query = {dealerName: dealerName};
           db.getConnection()
             .collection(productDetailsCollection)
             .find(query)
             .toArray()
             .then((result) => {
               // console.log(result);
-              return callback({ status: 200, data: result });
+              return callback({status: 200, data: result});
             });
         }
       });
   },
   productRemove: (id, callback) => {
     console.log(`id=${id}`);
-    let query = { _id: ObjectId(id) };
+    let query = {_id: ObjectId(id)};
     db.getConnection()
       .collection(productDetailsCollection)
       .deleteOne(query)
       .then((result) => {
         // console.log(result);
         if (result.result.n) {
-          return callback({ status: 200, result: result });
+          return callback({status: 200, result: result});
         } else {
-          return callback({ status: 409, result: result });
+          return callback({status: 409, result: result});
         }
       });
   },
+
   orderHistory: (dealerName, callback) => {
     // let query = { dealerName: dealerName };
     db.getConnection()
       .collection(orderHistoryCollection)
       .aggregate([
-        { $unwind: "$orderDetails" },
-        { $match: { "orderDetails.dealerName": dealerName } },
+        {$unwind: '$orderDetails'},
+        {$match: {'orderDetails.dealerName': dealerName}},
         {
           $group: {
             _id: {
-              orderId: "$orderId",
-              bookName: "$orderDetails.bookName",
-              quantity: "$orderDetails.quantity",
-              price: "$orderDetails.price",
-              totalPrice: "$orderDetails.offerPrice",
-              orderDate: "$orderDate",
-              paymenttype: "$paymentOption",
-              customerName: "$orderDetails.customerName",
-              soldBy: "$orderDetails.dealerName",
-              status: "$status",
+              orderId: '$orderId',
+              bookName: '$orderDetails.bookName',
+              quantity: '$orderDetails.quantity',
+              price: '$orderDetails.price',
+              totalPrice: '$orderDetails.offerPrice',
+              orderDate: '$orderDate',
+              paymenttype: '$paymentOption',
+              customerName: '$orderDetails.customerName',
+              soldBy: '$orderDetails.dealerName',
+              status: '$status',
               // image: "$orderDetails.imageUrl",
             },
           },
@@ -260,6 +262,56 @@ module.exports = {
         return callback({
           status: 200,
           data: result,
+        });
+      });
+  },
+
+  getAllDetailsCount: (dealerName, callback) => {
+    let allDetailsCount = {
+      totalSaleAmount: 0,
+      date: [],
+      amount: [],
+    };
+    let query = {dealerName: dealerName};
+    db.getConnection()
+      .collection(productDetailsCollection)
+      .find(query)
+      .count()
+      .then((result) => {
+        console.log(result);
+        allDetailsCount.productCount = result;
+      });
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .find(query)
+      .count()
+      .then((result) => {
+        console.log(result);
+        allDetailsCount.customerCount = result;
+        console.log(allDetailsCount);
+      });
+    db.getConnection()
+      .collection(orderHistoryCollection)
+      .aggregate([
+        {$unwind: '$orderDetails'},
+        {$match: {'orderDetails.dealerName': 'jhon'}},
+      ])
+      .toArray()
+      .then((result) => {
+        // console.log(result);
+        // allDetailsCount.customerCount = result;
+        result.forEach((sale) => {
+          allDetailsCount.date.push(sale.orderDate);
+          allDetailsCount.amount.push(parseInt(sale.orderDetails.offerPrice));
+          allDetailsCount.totalSaleAmount =
+            allDetailsCount.totalSaleAmount +
+            parseInt(sale.orderDetails.offerPrice);
+          // console.log(parseInt(sale.orderDetails.offerPrice));
+        });
+        console.log(allDetailsCount);
+        return callback({
+          status: 200,
+          data: allDetailsCount,
         });
       });
   },
