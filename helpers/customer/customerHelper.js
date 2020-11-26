@@ -361,7 +361,7 @@ module.exports = {
               totalPrice: '$orderDetails.offerPrice',
               price: '$orderDetails.price',
               soldBy: '$orderDetails.dealerName',
-              status: '$orderDetails.status',
+              status: '$status',
             },
           },
         },
@@ -375,30 +375,134 @@ module.exports = {
         });
       });
   },
-  addMultipleShipAddress:(name,callback)=>{
-    let query = {userName: name};
+  addMultipleShipAddress: (name, data, callback) => {
+    console.log('Ship address');
+    let query = {userName: name, mobileNumber: data.mobileNumber};
     try {
       db.getConnection()
         .collection(shipAddressCollection)
         .find(query)
         .toArray()
         .then((collection) => {
-          console.log(collection);
+          // console.log(collection);
           console.log(collection.length);
           if (collection.length === 0) {
             console.log('true');
             db.getConnection()
-              .collection(customerDetailsCollection)
+              .collection(shipAddressCollection)
               .insertOne({
-                firstName: firstName,
-                lastName: lastName,
-                userName: userName,
-                email: email,
-                password: hashedPassword,
-                shipAddress: shipAddress,
+                userName: name,
+                fullName: data.fullName,
+                mobileNumber: data.mobileNumber,
+                address: data.address,
+                landmark: data.landmark,
+                townOrCity: data.townOrCity,
+                pincode: data.pincode,
               })
+              .then((result) => {
+                console.log(result);
+                return callback({status: 200, data: result});
+              });
+          } else {
+            return callback({
+              status: 309,
+              message: 'Ship address already exist',
+            });
+          }
+        });
     } catch (error) {
-      
+      console.log('Database connection failed');
     }
-  }
+  },
+  getAllMultipleAddress: (name, callback) => {
+    let query = {userName: name};
+    db.getConnection()
+      .collection(shipAddressCollection)
+      .find(query)
+      .toArray()
+      .then((collection) => {
+        console.log(collection);
+        return callback({status: 200, data: collection});
+      });
+  },
+  defaultShipAddress: (name, data, callback) => {
+    console.log(data);
+    let query = {
+      userName: name,
+    };
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .findOneAndUpdate(query, {
+        $set: {
+          shipAddress: data,
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        if (result) {
+          return callback({status: 200, result: result});
+        } else {
+          return callback({status: 409, result: result});
+        }
+      });
+  },
+  updateProfilePic: (name, imagePath, callback) => {
+    let imageUrl;
+    try {
+      let splitImageUrl = imagePath.path.split('/');
+      imageUrl = `${splitImageUrl[1]}/${splitImageUrl[2]}/${splitImageUrl[3]}`;
+    } catch (error) {
+      imageUrl = imagePath.path;
+      console.log(error);
+    }
+    let query = {userName: name};
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .findOneAndUpdate(
+        query,
+        {
+          $set: {
+            ProfilePictureUrl: imageUrl,
+          },
+        },
+        {upsert: true}
+      )
+      .then((result) => {
+        console.log(result);
+        return callback({
+          status: 200,
+          data: result.value,
+        });
+      });
+  },
+  cartCount: (name, callback) => {
+    let query = {customerName: name};
+    db.getConnection()
+      .collection(addToCartCollection)
+      .find(query)
+      .count()
+      .then((collection) => {
+        console.log(collection);
+        return callback({status: 200, data: collection});
+      });
+  },
+  mobileNumberIsValid: (number, callback) => {
+    // let query = {mobileNumber: number};
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .aggregate([
+        {$unwind: '$shipAddress'},
+        {$match: {'shipAddress.mobileNumber': number}},
+      ])
+      .toArray()
+      .then((collection) => {
+        console.log(collection);
+        if (collection.length != 0) {
+          return callback({status: 200, message: 'User is valid'});
+        } else {
+          return callback({status: 309, message: 'User not valid'});
+        }
+        // return callback({status: 200, data: collection});
+      });
+  },
 };

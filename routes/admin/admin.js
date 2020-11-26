@@ -111,15 +111,32 @@ router.put('/dashboard/users-list', (req, res) => {
 });
 
 /**
- * ////////////////TODO:- Dealer can access usersList-route/////////////
+ * ////////////////TODO:- admin can access usersList-route/////////////
  * */
 
 router.get('/dashboard/getalldetailscount', (req, res) => {
-  console.log("admin root");
+  console.log('admin root');
   adminHelper.getAllDetailsCount((result) => {
     console.log(result);
     res.send(result);
   });
 });
 
+/**
+ * ////////////////TODO:- admin can block usersList-route/////////////
+ * */
+
+router.put('/dashboard/users-list/blockuser', (req, res) => {
+  console.log('admin root');
+  let userStatus = {
+    customerName: req.body.params.customerName,
+    customerId: req.body.params.customerId,
+    data: req.body.data.status,
+  };
+  console.log(userStatus);
+  adminHelper.blockUser(userStatus, (result) => {
+    console.log(result);
+    res.send(result);
+  });
+}); 
 module.exports = router;

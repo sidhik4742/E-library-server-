@@ -200,4 +200,22 @@ module.exports = {
           });
       });
   },
+  blockUser: (customer, callback) => {
+    let query = {userName: customer.customerName};
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .findOneAndUpdate(
+        query,
+        {
+          $set: {
+            status: customer.data,
+          },
+        },
+        {$upsert: true}
+      )
+      .then((result) => {
+        console.log(result);
+        return callback({status: 200, data: result});
+      });
+  },
 };

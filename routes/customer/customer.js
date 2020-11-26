@@ -2,10 +2,22 @@ const {log} = require('debug');
 var express = require('express');
 const app = require('../../app');
 var router = express.Router();
+let multer = require('multer');
 const orderid = require('order-id')('eLibrary');
 const id = orderid.generate();
 
 const customerHelper = require('../../helpers/customer/customerHelper.js');
+
+const storage1 = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './public/images/CustomerDp');
+  },
+  filename: function (req, file, callback) {
+    callback(null, file.fieldname + Date.now() + '.jpg');
+  },
+});
+
+var uploadProduct = multer({storage: storage1}).any();
 
 /**
  * ////////////////TODO:- Customer login form route/////////////
@@ -168,9 +180,70 @@ router.get('/myOrder', (req, res) => {
  * ////////////////TODO:- Customer can add multiple ship address route/////////////
  * */
 
-router.get('/addShipAddress', (req, res) => {
+router.post('/addShipAddress', (req, res) => {
   let name = req.query.customerName;
-  customerHelper.myOrderList(name, (result) => {
+  data = req.body;
+  console.log(data);
+  customerHelper.addMultipleShipAddress(name, data, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can get all ship address route/////////////
+ * */
+
+router.get('/getallshipaddress', (req, res) => {
+  let name = req.query.customerName;
+  customerHelper.getAllMultipleAddress(name, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can update default ship address route/////////////
+ * */
+
+router.put('/updatedefaultaddress', (req, res) => {
+  let name = req.query.customerName;
+  customerHelper.defaultShipAddress(name, req.body, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can add/change Dp -route/////////////
+ * */
+
+router.put('/dashboard/profilepic', uploadProduct, (req, res) => {
+  let customerDp = req.files[0];
+  let customerName = req.headers.customername;
+  console.log(customerDp);
+  customerHelper.updateProfilePic(customerName, customerDp, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can get cunt of cart route/////////////
+ * */
+
+router.get('/cartcount', (req, res) => {
+  let name = req.query.customerName;
+  // console.log(name);
+  customerHelper.cartCount(name, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Customer can login with otp - route/////////////
+ * */
+
+router.post('/numbervalid', (req, res) => {
+  let mobile = req.body.mobileNumber;
+  console.log(mobile);
+  customerHelper.mobileNumberIsValid(mobile, (result) => {
     res.send(result);
   });
 });

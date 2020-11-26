@@ -315,4 +315,22 @@ module.exports = {
         });
       });
   },
+  statusUpdation: (orderId, orderStatus, callback) => {
+    console.log('database connection');
+    let query = {orderId: orderId};
+    db.getConnection()
+      .collection(orderHistoryCollection)
+      .findOneAndUpdate(query, {
+        $set: {
+          status: orderStatus,
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        return callback({
+          status: 200,
+          data: result,
+        });
+      });
+  },
 };

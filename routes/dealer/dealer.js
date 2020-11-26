@@ -134,6 +134,22 @@ router.get('/dashboard/orderlist', (req, res) => {
     res.send(result);
   });
 });
+/**
+ * ////////////////TODO:- Dealer can take action product-route/////////////
+ * */
+
+router.put('/dashboard/orderlist', (req, res) => {
+  let orderId = req.body.params.orderId;
+  let orderStatus;
+  if (req.body.data.orderStatus === 'approve') orderStatus = 'Dispatched';
+  else orderStatus = 'Cancelled';
+
+  console.log(orderId, orderStatus);
+  console.log(orderStatus);
+  dealerHelper.statusUpdation(orderId, orderStatus, (result) => {
+    res.send(result);
+  });
+});
 
 /**
  * ////////////////TODO:- Dealer get all details count/////////////
