@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const {log} = require('debug');
 const {query} = require('express');
 const {default: orderId} = require('order-id');
+const otpLoginHandler = require('../../config/OtpLogin');
 
 const saltRounds = 10;
 const customerDetailsCollection = 'customerPersonalDetails';
@@ -496,13 +497,46 @@ module.exports = {
       ])
       .toArray()
       .then((collection) => {
-        console.log(collection);
+        console.log(collection[0].shipAddress.mobileNumber);
+        let mobileNumber = collection[0].shipAddress.mobileNumber;
         if (collection.length != 0) {
-          return callback({status: 200, message: 'User is valid'});
+          otpLoginHandler.sendOtpHandler(mobileNumber, (result) => {
+            console.log(result);
+            return callback({status: 200, result: result});
+          });
         } else {
-          return callback({status: 309, message: 'User not valid'});
+          return callback({status: 309, result: 'User not valid'});
         }
-        // return callback({status: 200, data: collection});
       });
+  },
+  otpVerification: (otpVerifyDetails, callback) => {
+    otpLoginHandler.verifyOtpHandler(otpVerifyDetails, (result) => {
+      console.log(result);
+      if (result.status === 200) {
+        db.getConnection()
+          .collection(customerDetailsCollection)
+          .aggregate([
+            {$unwind: '$shipAddress'},
+            {
+              $match: {
+                'shipAddress.mobileNumber':
+                  otpVerifyDetails.mobileNumber.mobileNumber,
+              },
+            },
+          ])
+          .toArray()
+          .then((collection) => {
+            console.log(collection);
+            let jwtPublicKey = collection[0].userName;
+            let customerToken = jwt.sign(jwtPublicKey, jwtPrivateKey);
+            return callback({
+              status: 200,
+              result: collection,
+              token: customerToken,
+            });
+          });
+      } else {
+      }
+    });
   },
 };

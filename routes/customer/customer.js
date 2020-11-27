@@ -4,6 +4,7 @@ const app = require('../../app');
 var router = express.Router();
 let multer = require('multer');
 const orderid = require('order-id')('eLibrary');
+const otpLoginHandler = require('../../config/OtpLogin');
 const id = orderid.generate();
 
 const customerHelper = require('../../helpers/customer/customerHelper.js');
@@ -244,6 +245,18 @@ router.post('/numbervalid', (req, res) => {
   let mobile = req.body.mobileNumber;
   console.log(mobile);
   customerHelper.mobileNumberIsValid(mobile, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:-  verify otp - route/////////////
+ * */
+
+router.post('/numberverify', (req, res) => {
+  let otpVerifyDetails = req.body;
+  console.log(otpVerifyDetails);
+  customerHelper.otpVerification(otpVerifyDetails, (result) => {
     res.send(result);
   });
 });
