@@ -218,4 +218,37 @@ module.exports = {
         return callback({status: 200, data: result});
       });
   },
+  orderHistory: (dealerName, callback) => {
+    // let query = { dealerName: dealerName };
+    db.getConnection()
+      .collection(orderHistoryCollection)
+      .aggregate([
+        {$unwind: '$orderDetails'},
+        {
+          $group: {
+            _id: {
+              orderId: '$orderId',
+              bookName: '$orderDetails.bookName',
+              quantity: '$orderDetails.quantity',
+              price: '$orderDetails.price',
+              totalPrice: '$orderDetails.offerPrice',
+              orderDate: '$orderDate',
+              paymenttype: '$paymentOption',
+              customerName: '$orderDetails.customerName',
+              soldBy: '$orderDetails.dealerName',
+              status: '$status',
+              // image: "$orderDetails.imageUrl",
+            },
+          },
+        },
+      ])
+      .toArray()
+      .then((result) => {
+        console.log(result);
+        return callback({
+          status: 200,
+          data: result,
+        });
+      });
+  },
 };

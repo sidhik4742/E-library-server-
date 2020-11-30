@@ -139,4 +139,15 @@ router.put('/dashboard/users-list/blockuser', (req, res) => {
     res.send(result);
   });
 }); 
+
+/**
+ * ////////////////TODO:- admin can access product-route/////////////
+ * */
+
+router.get('/dashboard/orderlist', (req, res) => {
+  let dealerName = req.query.dealerName;
+  adminHelper.orderHistory(dealerName, (result) => {
+    res.send(result);
+  });
+});
 module.exports = router;
