@@ -138,7 +138,7 @@ router.put('/dashboard/users-list/blockuser', (req, res) => {
     console.log(result);
     res.send(result);
   });
-}); 
+});
 
 /**
  * ////////////////TODO:- admin can access product-route/////////////
@@ -150,4 +150,52 @@ router.get('/dashboard/orderlist', (req, res) => {
     res.send(result);
   });
 });
+
+/**
+ * ////////////////TODO:- admin can get all category-route/////////////
+ * */
+
+router.get('/dashboard/category', (req, res) => {
+  adminHelper.getAllCategory((result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- admin can add category-route/////////////
+ * */
+
+router.post('/dashboard/addcategory', (req, res) => {
+  let {name} = req.body;
+  let category = name.charAt(0).toUpperCase() + name.slice(1);
+  console.log('====================================');
+  console.log(category);
+  console.log('====================================');
+  adminHelper.addCategory(category,(result) => {
+    res.send(result);
+  });
+});
+/**
+ * ////////////////TODO:- admin can delete category-route/////////////
+ * */
+
+router.delete('/dashboard/deletecategory', (req, res) => {
+  let id = req.query.id
+  console.log(id);
+  adminHelper.categoryRemove(id,(result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- admin have a permission to update category/////////////
+ * */
+
+router.put('/dashboard/editcategory', (req, res) => {
+  adminHelper.categoryEdit(req.body, (result) => {
+    console.log(result);
+    res.send(result);
+  });
+});
+
 module.exports = router;

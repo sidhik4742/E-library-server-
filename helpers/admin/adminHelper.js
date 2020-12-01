@@ -8,6 +8,7 @@ const dealerDetailsCollection = 'dealerPersonalDetails';
 const customerDetailsCollection = 'customerPersonalDetails';
 const productDetailsCollection = 'productDetails';
 const orderHistoryCollection = 'orderHistory';
+const categoryCollection = 'catogery';
 
 const jwtPrivateKey = 'e-libraryapplicationAdmin';
 
@@ -249,6 +250,76 @@ module.exports = {
           status: 200,
           data: result,
         });
+      });
+  },
+  getAllCategory: (callback) => {
+    db.getConnection()
+      .collection(categoryCollection)
+      .find()
+      .toArray()
+      .then((result) => {
+        console.log(result);
+        return callback({status: 200, data: result});
+      });
+  },
+  addCategory: (category, callback) => {
+    let query = {name: category};
+    db.getConnection()
+      .collection(categoryCollection)
+      .find(query)
+      .toArray()
+      .then((result) => {
+        if (result.length === 0) {
+          db.getConnection()
+            .collection(categoryCollection)
+            .insertOne(query)
+            .then((result) => {
+              console.log(result.ops);
+              return callback({status: 200, data: result.ops[0]});
+            });
+        } else {
+          return callback({status: 409, data: 'Category already exist'});
+        }
+      });
+  },
+  categoryRemove: (id, callback) => {
+    console.log(id);
+    let query = {_id: ObjectId(id)};
+    db.getConnection()
+      .collection(categoryCollection)
+      .deleteOne(query)
+      .then((result) => {
+        console.log(result.result);
+        if (result.result.ok) {
+          return callback({status: 200, result: result});
+        } else {
+          return callback({status: 409, result: result});
+        }
+      });
+  },
+  categoryEdit: (data, callback) => {
+    console.log(data._id);
+    let query = {_id: ObjectId(data._id)};
+
+    db.getConnection()
+      .collection(categoryCollection)
+      .findOneAndUpdate(query, {
+        $set: {
+          name: data.name,
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        if (result.ok) {
+          db.getConnection()
+            .collection(categoryCollection)
+            .find()
+            .toArray()
+            .then((result) => {
+              // console.log(result);
+              return callback({status: 200, data: result});
+            });
+        }
       });
   },
 };
