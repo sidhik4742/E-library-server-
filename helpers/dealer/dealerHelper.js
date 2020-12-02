@@ -2,12 +2,14 @@ const db = require('../../config/config');
 const bcrypt = require('bcrypt');
 const {ObjectId} = require('mongodb');
 const jwt = require('jsonwebtoken');
+const {query} = require('express');
 
 const saltRounds = 10;
 const customerDetailsCollection = 'customerPersonalDetails';
 const dealerDetailsCollection = 'dealerPersonalDetails';
 const productDetailsCollection = 'productDetails';
 const orderHistoryCollection = 'orderHistory';
+const OffersCollection = 'offers';
 
 const jwtPrivateKey = 'e-libraryapplicationDealer';
 
@@ -331,6 +333,47 @@ module.exports = {
           status: 200,
           data: result,
         });
+      });
+  },
+  couponOfferManage: (name, data, callback) => {
+    // console.log("true");
+    db.getConnection()
+      .collection(OffersCollection)
+      .insertOne({
+        dealerName: name,
+        couponCode: data.couponCode,
+        couponOfferAmount: data.couponOfferAmount,
+        expiredDate: data.expiredDate,
+        status: data.status,
+      })
+      .then((result) => {
+        console.log(result);
+      });
+  },
+  getAllCoupon: (name, callback) => {
+    let query = {dealerName: name};
+    db.getConnection()
+      .collection(OffersCollection)
+      .find(query)
+      .toArray()
+      .then((result) => {
+        console.log(result);
+        callback({status: 200, result: result});
+      });
+  },
+  offerRemove: (id, callback) => {
+    console.log(`id=${id}`);
+    let query = {_id: ObjectId(id)};
+    db.getConnection()
+      .collection(OffersCollection)
+      .deleteOne(query)
+      .then((result) => {
+        // console.log(result);
+        if (result.result.n) {
+          return callback({status: 200, result: result});
+        } else {
+          return callback({status: 409, result: result});
+        }
       });
   },
 };

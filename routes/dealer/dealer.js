@@ -162,4 +162,35 @@ router.get('/dashboard/getalldetailscount', (req, res) => {
   });
 });
 
+/**
+ * ////////////////TODO:- Dealer can creat coupon offer -route/////////////
+ * */
+
+router.post('/dashboard/couponoffer', (req, res) => {
+  console.log(req.body);
+  let dealerName = req.query.dealerName;
+  let data = req.body;
+  dealerHelper.couponOfferManage(dealerName, data, (result) => {
+    res.send(result);
+  });
+});
+
+router.get('/dashboard/getallcoupon', (req, res) => {
+  let dealerName = req.query.name;
+  dealerHelper.getAllCoupon(dealerName, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:- Dealer can delete offer-route/////////////
+ * */
+
+router.delete('/dashboard/couponoffer', (req, res) => {
+  let id = req.query.id;
+  dealerHelper.offerRemove(id, (result) => {
+    res.send(result);
+  });
+});
+
 module.exports = router;

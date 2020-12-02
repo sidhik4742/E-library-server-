@@ -14,6 +14,7 @@ const orderCollection = 'order';
 const addToCartCollection = 'cart';
 const orderHistoryCollection = 'orderHistory';
 const shipAddressCollection = 'shipAddress';
+const OffersCollection = 'offers';
 
 const jwtPrivateKey = 'e-libraryapplicationCustomer';
 
@@ -538,5 +539,20 @@ module.exports = {
       } else {
       }
     });
+  },
+  couponValidation: (coupon, callback) => {
+    let query = {couponCode: coupon};
+    db.getConnection()
+      .collection(OffersCollection)
+      .find(query)
+      .toArray()
+      .then((collection) => {
+        console.log(collection);
+        if (collection.length != 0) {
+          return callback({status: 200, data: collection});
+        } else {
+          return callback({status: 409, data: 'NO coupon available'});
+        }
+      });
   },
 };

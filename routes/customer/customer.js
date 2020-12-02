@@ -261,4 +261,16 @@ router.post('/numberverify', (req, res) => {
   });
 });
 
+/**
+ * ////////////////TODO:-  coupon validation - route/////////////
+ * */
+
+router.post('/iscouponvalid', (req, res) => {
+  let isCouponvalid = req.body.coupon;
+  console.log(isCouponvalid);
+  customerHelper.couponValidation(isCouponvalid, (result) => {
+    res.send(result);
+  });
+});
+
 module.exports = router;
