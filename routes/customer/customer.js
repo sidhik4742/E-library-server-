@@ -265,12 +265,47 @@ router.post('/numberverify', (req, res) => {
  * ////////////////TODO:-  coupon validation - route/////////////
  * */
 
-router.post('/iscouponvalid', (req, res) => {
-  let isCouponvalid = req.body.coupon;
+router.get('/iscouponvalid', (req, res) => {
+  let isCouponvalid = JSON.parse(req.query.couponCode).coupon;
   console.log(isCouponvalid);
   customerHelper.couponValidation(isCouponvalid, (result) => {
     res.send(result);
   });
 });
 
+/**
+ * ////////////////TODO:-  coupon validation - route/////////////
+ * */
+
+router.get('/checkusedcoupon', (req, res) => {
+  let customerName = req.query.name;
+  console.log(customerName);
+  customerHelper.checkUsedCoupon(customerName, (result) => {
+    res.send(result);
+  });
+});
+/**
+ * ////////////////TODO:-  coupon validation - route/////////////
+ * */
+
+router.put('/iscouponvalid', (req, res) => {
+  let expiredCoupon = req.body.id;
+  console.log(expiredCoupon);
+  customerHelper.couponStatusUpdation(expiredCoupon, (result) => {
+    res.send(result);
+  });
+});
+
+/**
+ * ////////////////TODO:-  coupon added in customer details - route/////////////
+ * */
+
+router.put('/usedcouponupdation', (req, res) => {
+  let name = req.body.params;
+  let expiredCoupon = req.body.data.couponData;
+  console.log(name, expiredCoupon);
+  customerHelper.addCouponInCustomerDetails(name, expiredCoupon, (result) => {
+    res.send(result);
+  });
+});
 module.exports = router;

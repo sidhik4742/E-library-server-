@@ -555,4 +555,48 @@ module.exports = {
         }
       });
   },
+  checkUsedCoupon: (name, callback) => {
+    let query = {userName: name};
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .find(query)
+      .toArray()
+      .then((collection) => {
+        console.log(collection);
+        if (collection.length != 0) {
+          return callback({status: 200, data: collection});
+        } else {
+          return callback({status: 409, data: 'user does not exist!'});
+        }
+      });
+  },
+  couponStatusUpdation: (couponId, callback) => {
+    let query = {_id: ObjectId(couponId)};
+    db.getConnection()
+      .collection(OffersCollection)
+      .findOneAndUpdate(query, {
+        $set: {
+          status: 'Expired',
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        return callback({status: 200, data: result});
+      });
+  },
+  addCouponInCustomerDetails: (name, expiredCoupon, callback) => {
+    let query = {userName: name.customerName};
+    console.log(query);
+    db.getConnection()
+      .collection(customerDetailsCollection)
+      .findOneAndUpdate(query, {
+        $push: {
+          usedCoupon: expiredCoupon.coupon,
+        },
+      })
+      .then((result) => {
+        console.log(result);
+        return callback({status: 200, data: result});
+      });
+  },
 };
